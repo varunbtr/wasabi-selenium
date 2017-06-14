@@ -16,7 +16,7 @@ class UsersTest(unittest.TestCase):
 		self.driver = WebDriver(desired_capabilities=DesiredCapabilities.CHROME,command_executor=command_executor)
 		self.driver.get(common.URL)
 		login_page = LoginPage(self.driver).open()
-		login_page.login('testing+ali@wasabi.com','password')
+		login_page.login(common.USERNAME,common.PASSWORD)
 
 
 	def testusers(self):

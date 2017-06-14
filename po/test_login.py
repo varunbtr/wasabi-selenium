@@ -13,7 +13,7 @@ class Login(unittest.TestCase):
 
     def test_user_login(self):
         login_page = LoginPage(self.driver).open()
-        login_page.login('vbatra@ba.com','password')
+        login_page.login(common.USERNAME,common.PASSWORD)
         #filemanager_page = login_page.submit()
         #assert filemanager_page.is_title_matches(), "File Manager"
 
