@@ -38,7 +38,7 @@ locators = {
 	'delete_btn': 'css=div.Flex div.Box button',
 
 	'group_users': 'id=group-users',
-	'add_user_to_group':'id=add-user-to-group',	#where does the number at the end come from  
+	'add_user_to_group':'id=add-user-to-group',	
 	'USERS_LIST_SPANS': 'css=div[aria-hidden="false"] span',
 	'USERS_LIST_DELETE': 'css=div[aria-hidden="false"] svg',
 	'group_svg': "css=div[tabindex='0']",
@@ -77,7 +77,7 @@ class Groups(BasePage):
 	def deleteGroup(self, groupname):
 		self.find_element_by_locator(locators['group_btn']+ groupname).click()
 		self.find_element_by_locator(locators['delete_btn']).click()
-		print("Deleted")
+		print(groupname + "Deleted")
 
 
 	def selectGroup(self,groupname):
@@ -85,13 +85,17 @@ class Groups(BasePage):
 
 
 	def getGroupList(self):
+		table = []
+		header = ['Name' , 'Path','ARN','Created on']
 		for rows in self.find_elements_by_locator(locators['GROUPS_LIST_TABLE_ROWS']):
 			d = {}
-			for index, colms in self.find_elements_by_locator(locators['GROUPS_LIST_TABLE_COLMS']):
-				if(index >0):
-					col_text = colms.text
-					d[header[index]] = col_text
+			index = 0
+			for colms in rows.find_elements_by_locator(locators['GROUPS_LIST_TABLE_COLMS']):
+				print(colms.text)
+				d[header[index]] = colms.text
+				index+=1
 			table.append(d)
+		print(table)
 		return table
 
 
@@ -100,7 +104,6 @@ class Groups(BasePage):
 		for rows in self.find_elements_by_locator(locators['GROUPS_LIST_TABLE_ROWS']):
 			colms = rows.find_elements_by_locator(locators['GROUPS_LIST_TABLE_COLMS'])
 			col_text = colms[0].text
-			print col_text
 			if col_text == groupname:
 				return colms[0]
 				break
@@ -108,10 +111,8 @@ class Groups(BasePage):
 				raise TimeoutException('Failed to locate user '
 					'value {!r}'.format(attr_val))
 
-	#you need to pick your group before using these functions
-
 	#Users
-	def addGroupUser(self,groupname,username):
+	def addGrouptoUser(self,groupname,username):
 		self.find_element_by_locator(locators['group_btn']+ groupname).click()
 		self.find_element_by_locator(locators['group_users']).click()
 		self.userName = username
@@ -137,7 +138,7 @@ class Groups(BasePage):
 		# Varun: retrieve text using getText()
 		print("test")
 
-		#iterate through the list of users
+		#iterate through the list of users bubbles
 		
 		d = {}
 		for colms in self.find_element_by_locator(locators['group_users']):

@@ -21,18 +21,11 @@ class GroupTest(unittest.TestCase):
 	def testgroups(self):
 		group_page = Groups(self.driver).open()
 
-		group_page.findGroup('1')
+		group_page.getGroupList()
 
 		#group_page.deleteGroup('1')
 		time.sleep(2)
 		#print(group_page.getGroupList())
-
-		group_page.selectGroup('1')
-
-		time.sleep(2)
-
-		group_page.addGroupUser('Alice')
-		print('user added')
 
 		time.sleep(2)
 		
