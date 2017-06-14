@@ -11,6 +11,7 @@ import base
 import common
 from base import BasePage
 from controls.text import Text
+from controls.autocomplete import AutoComplete
 import time
 
 locators = {
@@ -53,7 +54,7 @@ class Groups(BasePage):
 	table = []
 	header = ['Name','Path','ARN','Created on']
 	groupName = Text(locators['group_name'])	
-	userName = Text(locators['add_user_to_group'])
+	userName = AutoComplete(locators['add_user_to_group'])
 	permissionName = Text(locators['add_user_to_group'])	
 
 
