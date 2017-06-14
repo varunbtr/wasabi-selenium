@@ -85,25 +85,24 @@ class Groups(BasePage):
 
 
 	def getGroupList(self):
-		for rows in self.find_element_by_locator(locators['GROUPS_LIST_TABLE_ROWS']):
+		for rows in self.find_elements_by_locator(locators['GROUPS_LIST_TABLE_ROWS']):
 			d = {}
-			for index, colms in self.find_element_by_locator(locators['GROUPS_LIST_TABLE_COLMS']):
+			for index, colms in self.find_elements_by_locator(locators['GROUPS_LIST_TABLE_COLMS']):
 				if(index >0):
-					col_text = colms.getText(colms)
+					col_text = colms.text
 					d[header[index]] = col_text
 			table.append(d)
 		return table
 
 
 	def findGroup(self,groupname):
-		header = ['User Name' , 'Path','ARN','Created on']
-		for rows in self.find_element_by_locator(locators['GROUPS_LIST_TABLE_ROWS']):
-			colms = self.find_element_by_locator(locators['GROUPS_LIST_TABLE_COLMS'])
-			import pydb
-			pydb.debugger()
-			col_text = colms[0].getText(colms[0])
+		header = ['Name' , 'Path','ARN','Created on']
+		for rows in self.find_elements_by_locator(locators['GROUPS_LIST_TABLE_ROWS']):
+			colms = rows.find_elements_by_locator(locators['GROUPS_LIST_TABLE_COLMS'])
+			col_text = colms[0].text
+			print col_text
 			if col_text == groupname:
-				return colums[0]
+				return colms[0]
 				break
 			else:
 				raise TimeoutException('Failed to locate user '
