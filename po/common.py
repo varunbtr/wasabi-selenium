@@ -9,7 +9,8 @@ import base
 import time
 
 URL = 'https://localhost/console#/'
-
+USERNAME = 'test'
+PASSWORD = 'test'
 
 def check_error(self):
     try:
