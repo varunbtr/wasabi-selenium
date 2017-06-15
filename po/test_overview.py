@@ -21,11 +21,7 @@ class OverviewTest(unittest.TestCase):
 	def testoverview(self):
 		overview_page = Overview(self.driver).open()
 
-		overview_page.editAlias('temp3')
-
-		time.sleep(2)
-
-		print("Overview")
+		overview_page.editAlias('temp')
 		
 		#common.check_error(self)
 
