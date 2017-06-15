@@ -40,13 +40,13 @@ locators = {
 
 	'group_users': 'id=group-users',
 	'add_user_to_group':'id=add-user-to-group',	
-	'USERS_LIST_SPANS': 'css=div[aria-hidden="false"] span',
-	'USERS_LIST_DELETE': 'css=div[aria-hidden="false"] svg',
-	'group_svg': "css=div[tabindex='0']",
+	'USER_BUBBLES': "css=div[aria-hidden='false'] .Flex .Box",
+	'USER_SVG': "css=div[aria-hidden='false'] .Flex .Box span",
 
 	'group_permissions': 'id=group-permissions',
-	'add_policy_to_group': '',
-	'PERMISSION_LIST_TABLE_ROWS': 'css=.Flex .Box',
+	'add_policy_to_group': "css=div[aria-hidden='false'] input",
+	'PERMISSION_BUBBLES': "css=div[aria-hidden='false'] .Flex .Box",
+	'PERMISSION_SVG': "css=div[aria-hidden='false'] .Flex .Box span"
 	}
 
 class Groups(BasePage):
@@ -55,7 +55,7 @@ class Groups(BasePage):
 	header = ['Name','Path','ARN','Created on']
 	groupName = Text(locators['group_name'])	
 	userName = AutoComplete(locators['add_user_to_group'])
-	permissionName = Text(locators['add_user_to_group'])	
+	permissionName = AutoComplete(locators['add_policy_to_group'])	
 
 
 	def wait_until_loaded(self):
@@ -67,9 +67,9 @@ class Groups(BasePage):
 		self.driver.get(self.url)
 		return self.wait_until_loaded()
 
-	#Functions for groups page
+	#Functions
 	def createGroup(self, groupname):
-		#Need an if Statement to check if a group with the given name already exists
+		time.sleep(1)
 		self.find_element_by_locator(locators['create_group'])	.click()
 		self.groupName = groupname
 		self.find_element_by_locator(locators['save_group']).click()
@@ -112,72 +112,107 @@ class Groups(BasePage):
 				raise TimeoutException('Failed to locate user '
 					'value {!r}'.format(attr_val))
 
-	#Users
-	def addGrouptoUser(self,groupname,username):
-		self.find_element_by_locator(locators['group_btn']+ groupname).click()
+	#Group Users Page
+	def addUsertoGroup(self,groupname,username):
+		time.sleep(1)
+		self.find_element_by_locator(locators['group_btn']+ group).click()
 		self.find_element_by_locator(locators['group_users']).click()
-		self.userName = username
-		#figure out how to enter user name in to AddUserToGroup text box 
+		time.sleep(1)
+
+		#Enter User
+		self.userName = username 
 
 		#Return to user page
 		Groups(self.driver).open()
 
 	def deleteGroupUser(self,group,user):
+		time.sleep(1)
+		self.find_element_by_locator(locators['group_btn']+ group).click()
+		self.find_element_by_locator(locators['group_users']).click()
+		time.sleep(1)
+
+		#Search for User
+		index = 0
+		for bubbles in self.find_elements_by_locator(locators['USER_BUBBLES']) :
+			if bubbles.text == user :
+				self.find_elements_by_locator(locators['USER_SVG'])[index].click()
+				print("Deleted")
+				time.sleep(1)
+				Groups(self.driver).open()
+				return
+			index+=1
+		print("User does not exist")
+
+		#Return to user page
+		Groups(self.driver).open()
+
+	
+	def getGroupUsers(self,groupname):
+		time.sleep(1)
 		self.find_element_by_locator(locators['group_btn']+ groupname).click()
 		self.find_element_by_locator(locators['group_users']).click()
+		time.sleep(1)
 
-		time.sleep(2)
-		# Use get from span to find the group then use that index to click on its svg
-		self.find_elements_by_locator(locators['group_svg'])[0].click()
-
-		#Return to user page
-		Groups(self.driver).open()
-
-	'''
-	def getGroupUsers(self,group):
-		self.find_element_by_locator(locators['group_users'])
-		# Varun: retrieve text using getText()
-		print("test")
-
-		#iterate through the list of users bubbles
+		#Return table of group users
+		table = []
+		for colms in self.find_elements_by_locator(locators['USER_BUBBLES']):
+			table.append(colms.text)
 		
-		d = {}
-		for colms in self.find_element_by_locator(locators['group_users']):
-			print("here") 
-			col_text = colms.getText(colms)
-			print(col_text)
-			d[header[index]] = col_text
-		print(d)
-		return d	
-	'''
+		#Return to user page
+		Groups(self.driver).open()
+		print(table)
+		return(table)	
+	
 
-	#Permisions
-	'''
-	#def setGroupPermissions(self,permission):
-		self.find_element_by_locator(locators['group_btn']+ groupname).click()
-		self.find_element_by_locator(locators['group_permissions']).click() 
-
-		#Enter it 
-		self.permissionName = permission
-
-		#Click on droping text box 
-
-	def deleteGroupPermission(self):
-		self.find_element_by_locator(locators['group_btn']+ groupname).click()
+	#Group Permissions Page
+	
+	def addPermissionToGroup(self,group,permission):
+		time.sleep(1) 
+		self.find_element_by_locator(locators['group_btn']+ group).click()
 		self.find_element_by_locator(locators['group_permissions']).click()
+		time.sleep(1) 
 
-		time.sleep(2)
-		# Use get from span to find the group then use that index to click on its svg
-		self.find_elements_by_locator(locators['group_svg'])[0].click()
+		#Add permission 
+		self.permissionName = permission
+		print("permission added")
 
 		#Return to user page
 		Groups(self.driver).open()
-
-
-	#def getGroupPermissions(self,permission):
+	
+	def deleteGroupPermission(self,groupname,permission):
+		time.sleep(1)
 		self.find_element_by_locator(locators['group_btn']+ groupname).click()
 		self.find_element_by_locator(locators['group_permissions']).click()
-		#retrieve spans containing group permsions - loop through the table of spans 	
-	'''
+		time.sleep(1)
+
+		#Search for permission
+		index = 0
+		for bubbles in self.find_elements_by_locator(locators['PERMISSION_BUBBLES']) :
+			if bubbles.text == permission :
+				self.find_elements_by_locator(locators['PERMISSION_SVG'])[index].click()
+				print("Deleted")
+				time.sleep(1)
+				Groups(self.driver).open()
+				return
+			index+=1
+		print("Permission does not exist")
+
+		#Return to user page
+		Groups(self.driver).open()
+	
+
+	def getGroupPermissions(self,groupname):
+		time.sleep(1)
+		self.find_element_by_locator(locators['group_btn']+ groupname).click()
+		self.find_element_by_locator(locators['group_permissions']).click()
+		time.sleep(1)
+
+		#Return table of group permissions
+		table = []
+		for bubbles in self.find_elements_by_locator(locators['PERMISSION_BUBBLES']) :
+			table.append(bubbles.text)
+		print(table)
+		return(table)
+
 
 
