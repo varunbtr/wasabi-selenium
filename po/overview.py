@@ -33,9 +33,9 @@ locators = {
 	'policies':"css=a[href='#/policies']",
 	'roles':"css=a[href='#/roles']",
 
-	'alias_btn': 'css=.container-0-14 .Flex span.material-icons',
-	'input_alias': '.container-0-14 .Flex input',
-	'save_alias': '',
+	'alias_btn': 'css=.Flex span.material-icons',
+	'input_alias': 'css=.Flex input',
+	'save_alias': 'css=.Flex button',
 	}
 
 class Overview(BasePage):
@@ -60,27 +60,29 @@ class Overview(BasePage):
 	def createBucket(self,bucketName):
 		self.find_element_by_locator(locators['create_bucket']).click()
 		self.BucketName = bucketName
-		time.sleep(2)
+		time.sleep(1)
 
 		self.find_element_by_locator(locators['nextbutton']).click()
-		time.sleep(2)
+		time.sleep(1)
 
 		self.find_element_by_locator(locators['nextbutton']).click()
-		time.sleep(2)
+		time.sleep(1)
 
 		self.find_element_by_locator(locators['nextbutton']).click()
-		time.sleep(2)
+		time.sleep(1)
 		print('done')
 				
 
 	
 	def editAlias(self,alias):
 		#click on alias
-		self.find_element_by_locator(locators['alias_btn']).click()
-		time.sleep(3)
-		inputAlias = alias
-		time.sleep(3)
-		#input new alias
+		time.sleep(1)
+		self.find_elements_by_locator(locators['alias_btn'])[0].click()
+		time.sleep(1)
+		self.inputAlias = alias
+		time.sleep(1)
 		#click save
+		self.find_element_by_locator(locators['save_alias']).click()
+
 
 

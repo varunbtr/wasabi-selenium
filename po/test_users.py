@@ -23,9 +23,8 @@ class UsersTest(unittest.TestCase):
 		users_page = Users(self.driver).open()
 		time.sleep(2)
 
-		users_page.editUserName('Alice','test')
+		users_page.createUser('bolak2','1','none','none')
 		time.sleep(2)
-		print("home")
 
 
 
