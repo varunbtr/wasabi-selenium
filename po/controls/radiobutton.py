@@ -4,17 +4,17 @@ class RadioButton(object):
 
     def __set__(self, instance, value):
         try:
-            e = instance.element.find_element_by_locators(self.locator)
+            e = instance.element.find_element_by_locator(self.locator)
         except AttributeError:
-            for e in instance.element.find_element_by_locators(self.locator):
-                if not e.is_selected():
+            for e in instance.driver.find_elements_by_locator(self.locator):
+                if e.get_attribute('value') == value:
                     e.click()
 
     def __get__(self, instance, owner=None):
         try:
-             e = instance.element.find_element_by_locators(self.locator)    
+             e = instance.element.find_element_by_locator(self.locator)    
         except AttributeError:
-            for e in instance.element.find_element_by_locators(self.locator):
+            for e in instance.driver.find_elements_by_locator(self.locator):
                 if e.is_selected():
                     retval = e.get_attribute('value')
                 else:

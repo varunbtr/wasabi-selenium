@@ -6,7 +6,7 @@ from __future__ import absolute_import, unicode_literals
 #    ElementNotSelectableException
 #)
 import time
-from selenium.common.exceptions import NoAlertPresentException
+from selenium.common.exceptions import NoAlertPresentException,TimeoutException
 
 #TODO create WaitForElementError class
 from errors import WaitForElementError
@@ -66,14 +66,15 @@ class BasePage(object):
 
     def find_elements_by_locator(self, locator):
         return self.driver.find_elements_by_locator(locator)
-
+    def is_element_present(self,locator):
+        return self.driver.is_element_present(locator)
     def wait_for_available(self, locator):
         for i in range(self.timeout_seconds):
             if self.driver.is_element_available(locator):
                 break
             self.sleep()
         else:
-            raise WaitForElementError('Wait for available timed out')
+            raise TimeoutException(msg='Wait for available timed out')
         return True
 
     def wait_for_visible(self, locator):
@@ -82,7 +83,7 @@ class BasePage(object):
                 break
             self.sleep()
         else:
-            raise WaitForElementError('Wait for visible timed out')
+            raise TimeoutException(msg='Wait for available timed out')
         return True
 
     def wait_for_hidden(self, locator):

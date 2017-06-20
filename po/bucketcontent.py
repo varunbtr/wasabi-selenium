@@ -1,39 +1,29 @@
 from selenium.common.exceptions import NoSuchElementException, ElementNotVisibleException
-from po.controls.checkbox import CheckBox
-from .errors import ExpectedElementError, WaitForElementError
-from .page import Page
-from po.controls import Text
-from po.common import common
+from base import BasePage
 
 locators = {
     'create_folder': 'id=create-folder',
     'upload_wizard': 'id=upload-wizard',
     'upload_file':'id=upload-file',
     'upload_folder':'id=upload-folder',
-    'start_upload':'',
-    'clear_files':'',
-
+    'input_upload':"css=.Flex .Box Input[type='file']",
+    'start_upload':'id=start-upload',
+    'clear_files':'id=clear-files',
 
 }
-url = common.URL + 'overview'
-
-class BucketContent(Page):
-      url = common.URL + 'overview'
-      BUCKET_NAME = (By.NAME,'Bucket')
-      VERSION_RADIO = (By.NAME,'Versioning')
-      LOGGING_RADIO = (By.NAME,'Logging')
-      NEXT_BUTTON = (By.CSS,'button[data-e2e="bucket-wiz-next"]')
-      CREATE_BUCKET_BTN = (By.CSS,'button[data-e2e="bucket-cta"]')
-
-      def upload(self):
-        self.driver.get(page_url)
-        return self.wait_until_loaded()
-      
-      def createBucket(self,name,region='',copybucket='',version,logging):
-          if not self.driver.findElement(By.CSS(".custom-scroll")).Displayed:
-            self.driver.find_element(CREATE_BUCKET_BTN).click()
-          self.set_textbox(LoginPage.USERNAME, username)
-          self.driver.find_element(NEXT_BUTTON).click()
-          self.set_radiobutton(VERSION_RADIO,version)
-          self.set_radiobutton(LOGGING_RADIO,logging)
-          self.driver.find_element(NEXT_BUTTON).click()
+class BucketContent(BasePage):
+  def uploadfile(self,file_name):
+        self.find_element_by_locator(locators['upload_wizard']).click()
+        #self.find_element_by_locator(locators['upload_file']).click()
+        inputfield = self.find_elements_by_locator(locators['input_upload'])[1]
+        inputfield.send_keys(file_name)
+        self.sleep(2)
+        self.find_element_by_locator(locators['start_upload']).click()
+        
+  def uploadfolder(self,folder_name):
+        self.find_element_by_locator(locators['upload_wizard']).click()
+        inputfield = self.find_elements_by_locator(locators['input_upload'])[0]
+        inputfield.send_keys(folder_name)
+        self.sleep(2)
+	self.find_element_by_locator(locators['start_upload']).click()
+           
