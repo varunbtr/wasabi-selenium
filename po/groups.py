@@ -160,7 +160,6 @@ class Groups(BasePage):
 		
 		#Return to user page
 		Groups(self.driver).open()
-		print(table)
 		return(table)	
 	
 
