@@ -205,7 +205,7 @@ class Users(BasePage):
 		self.userName = newName
 		#refresh the page
 		self.find_element_by_locator(locators['user_settings']).click()
-		time.sleep(1)
+
 
 		#press next 
 		self.find_element_by_locator(locators['update']).click()
