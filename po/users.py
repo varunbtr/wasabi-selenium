@@ -167,8 +167,14 @@ class Users(BasePage):
 			while self.driver.is_visible(locators['confirm_delete']):			#janky fix
 				self.find_element_by_locator(locators['confirm_delete']).click()
 			self.wait_for_hidden(locators['confirm_delete'])
-			self.wait_for_visible(locators['create_user'])
-			print(user + ' deleted')
+
+			# Sometimes it fails to delete because of policies, this will make thh ecode try again
+			if self.driver.is_visible(locators['create_user']):
+				#self.wait_for_visible(locators['create_user'])
+				print(user + ' deleted')
+			else:
+				Users(self.driver).open()
+				self.deleteUser(user)
 
 		else:
 			print(user + " does not exist")
@@ -191,10 +197,8 @@ class Users(BasePage):
 
 	#Settings
 	def editUserName(self,user,newName ):
-		time.sleep(1)
 		self.find_element_by_locator(locators['user']+user).click()
 		self.find_element_by_locator(locators['user_settings']).click()
-		time.sleep(1)
 
 		#Enter text
 		self.userName = "clear()"
@@ -212,17 +216,21 @@ class Users(BasePage):
 
 	#Groups Page
 	def addUserToGroup(self,user,newGroup):
-		time.sleep(1)
-		self.find_element_by_locator(locators['user']+user).click()
-		self.find_element_by_locator(locators['user_groups_page']).click()
-		time.sleep(1)
+		self.wait_for_available(locators['USERS_LIST_TABLE_ROWS'])
+		if self.driver.is_element_available(locators['user']+user):
+			self.find_element_by_locator(locators['user']+user).click()
+			self.find_element_by_locator(locators['user_groups_page']).click()
+			time.sleep(1)
 
-		#Enter text
-		self.userToGroup = newGroup
-		print("User added")
-
+			#Enter text
+			self.userToGroup = newGroup
+			print("User added")
+		else:
+			print(user + " does not exist")
+	
 		#Return to user page
-		return Users(self.driver).open()		
+		return Users(self.driver).open()
+				
 
 		
 	
@@ -239,13 +247,12 @@ class Users(BasePage):
 				self.find_elements_by_locator(locators['GROUPS_SVG'])[index].click()
 				print("Deleted")
 				time.sleep(1)
-				Users(self.driver).open()
-				return
+				return Users(self.driver).open()
 			index+=1
 		print("User does not exist")
 
 		#Return to user page
-		Users(self.driver).open()
+		return Users(self.driver).open()
 		
 
 	
@@ -263,7 +270,7 @@ class Users(BasePage):
 		#Return to user page
 		Users(self.driver).open()
 		print(table)
-		return(table)	
+		return Users(self.driver).open()	
 	
 
 	#Console Access

@@ -24,20 +24,28 @@ class UsersTest(unittest.TestCase):
 		users_page = Users(self.driver).open()
 
 		users_page = users_page.deleteUser('bolak2')
-		#users_page = users_page.deleteUser('bolak3')
-		#users_page = users_page.deleteUser('bolak4')
+		users_page = users_page.deleteUser('bolak3')
+		users_page = users_page.deleteUser('bolak4')
 
 		users_page = users_page.createUser('bolak2','API','1','WasabiFullAccess')
 		#users_page = users_page.createUser('bolak3','API','2','WasabiFullAccess')
-		#users_page = users_page.createUser('bolak4','API','none' ,'WasabiFullAccess')
+		users_page = users_page.createUser('bolak4','API','none' ,'WasabiFullAccess')
 
 		users_page = users_page.addUserToGroup('bolak2','2')
+		users_page = users_page.getUserGroups('bolak2')
 
 		group_page = Groups(self.driver).open()
 		temp = group_page.getGroupUsers('2')
 		print(temp)
 
 		users_page = Users(self.driver).open()
+
+		users_page = users_page.editUserName('bolak2','bolak3')
+		print('changed bolak2 to bolak3')
+
+		users_page = users_page.deleteUserGroup('bolak3','2')
+		users_page = users_page.getUserGroups('bolak3')
+
 		users_page = users_page.deleteUser('bolak2')
 		users_page = users_page.deleteUser('bolak3')
 		users_page = users_page.deleteUser('bolak4')
