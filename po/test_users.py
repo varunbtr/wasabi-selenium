@@ -18,39 +18,80 @@ class UsersTest(unittest.TestCase):
 		self.driver.get(common.URL)
 		login_page = LoginPage(self.driver).open()
 		login_page.login(common.USERNAME,common.PASSWORD)
+	'''
 
-
-	def testusers(self):
+	def test_createUser_with_console(self):
 		users_page = Users(self.driver).open()
+		print("Create user with CONSOLE access")
 
 		users_page = users_page.deleteUser('bolak2')
-		users_page = users_page.deleteUser('bolak3')
-		users_page = users_page.deleteUser('bolak4')
+		users_page = users_page.createUser('bolak2','console')
+		users_page = users_page.logOut()
+		login_page = LoginPage(self.driver).open()
+		file_page = login_page.login(common.USERNAME,'password','bolak2')
 
-		users_page = users_page.createUser('bolak2','API','1','WasabiFullAccess')
-		#users_page = users_page.createUser('bolak3','API','2','WasabiFullAccess')
-		users_page = users_page.createUser('bolak4','API','none' ,'WasabiFullAccess')
+		if "file_manager" in self.driver.current_url:
+			print('success') 
+		else:
+			print('FAIL') 
 
-		users_page = users_page.addUserToGroup('bolak2','2')
-		users_page = users_page.getUserGroups('bolak2')
-
-		group_page = Groups(self.driver).open()
-		temp = group_page.getGroupUsers('2')
-		print(temp)
-
+	
+	def test_createUser_with_api(self):
 		users_page = Users(self.driver).open()
-
-		users_page = users_page.editUserName('bolak2','bolak3')
-		print('changed bolak2 to bolak3')
-
-		users_page = users_page.deleteUserGroup('bolak3','2')
-		users_page = users_page.getUserGroups('bolak3')
+		print("Create user with API access")
 
 		users_page = users_page.deleteUser('bolak2')
-		users_page = users_page.deleteUser('bolak3')
-		users_page = users_page.deleteUser('bolak4')
+		users_page, accessKey , secretKey = users_page.createUser('bolak2','API')
+
+		print(accessKey)
+		print(secretKey)
+		print('success')
+
+	
+	def test_createUser_with_group(self):
+		users_page = Users(self.driver).open()
+		print("Create user with console access and group 'group-1' ")
+
+		users_page = users_page.deleteUser('bolak2')
+		users_page = users_page.createUser('bolak2','console','group-1')
+		users_page, table = users_page.getUserGroups('bolak2')
+
+		print(table)
+		if "group-1" in table:
+			print('success') 
+		else:
+			print('FAIL') 
+
+	
+	def test_createUser_with_policy(self):
+		users_page = Users(self.driver).open()
+		print("Create user with console access and polics 'WasabiFullAccess' ")
+
+		users_page = users_page.deleteUser('bolak2')
+		users_page = users_page.createUser('bolak2','console','none','WasabiFullAccess')
+
+		users_page,table = users_page.getGroupPermissions('bolak2')
+		print(table)
+		if 'WasabiFullAccess' in table:
+			print('success')
+		else:
+			print('FAIL') 
 
 
+	def test_deleteUser_with_no_users(self):
+		users_page = Users(self.driver).open()
+		users_page = users_page.deleteUser('bolak2')
+
+
+
+
+	'''
+
+
+		
+	def test_deleteAllUsers(self):
+		users_page = Users(self.driver).open()
+		users_page = users_page.deleteAllUsers()
 
 	def tearDown(self):
 		self.driver.close()
