@@ -38,6 +38,8 @@ locators = {
 	'group_btn': 'id=group-',
 	'delete_btn': 'css=div.Flex div.Box button',
 
+	'delete_confirm_btn':'css=button[data-e2e="confirmBtn"]',
+
 	'group_users': 'id=group-users',
 	'add_user_to_group':'id=add-user-to-group',	
 	'USER_BUBBLES': "css=div[aria-hidden='false'] .Flex .Box",
@@ -69,16 +71,63 @@ class Groups(BasePage):
 
 	#Functions
 	def createGroup(self, groupname):
-		time.sleep(1)
+		self.open()
+
+		if self.driver.is_visible(locators['group_btn']+groupname):
+			print("group exists")
+			return
+
+		self.wait_for_available(locators['create_group'])
 		self.find_element_by_locator(locators['create_group'])	.click()
 		self.groupName = groupname
 		self.find_element_by_locator(locators['save_group']).click()
+		self.wait_for_available(locators['group_btn']+groupname)
+
+		print( groupname + ' created')
 	
 
 	def deleteGroup(self, groupname):
-		self.find_element_by_locator(locators['group_btn']+ groupname).click()
-		self.find_element_by_locator(locators['delete_btn']).click()
-		print(groupname + "Deleted")
+		try: 
+			self.wait_for_available(locators['GROUPS_LIST_TABLE_ROWS'])
+
+			if self.driver.is_element_available(locators['group_btn']+groupname):
+				self.find_element_by_locator(locators['group_btn']+ groupname).click()
+				self.find_element_by_locator(locators['delete_btn']).click()
+
+				# Sometimes it fails to delete because of policies, this will make thh ecode try again
+				if self.driver.is_visible(locators['delete_confirm_btn']):
+					self.find_element_by_locator(locators['delete_confirm_btn']).click()
+
+				self.wait_for_available(locators['create_group'])
+
+			else:
+				print(user + " does not exist")
+	        except TimeoutException:
+			print("table empty") 
+
+
+
+	def deleteAllGroups(self):
+		self.open()
+		try: 
+			self.wait_for_available(locators['GROUPS_LIST_TABLE_ROWS'])
+
+			while self.driver.is_visible(locators['GROUPS_LIST_TABLE_ROWS']):
+				self.find_elements_by_locator(locators['GROUPS_LIST_TABLE_ROWS'])[0].click()
+				self.wait_for_visible(locators['delete_btn'])
+				self.find_element_by_locator(locators['delete_btn']).click()
+
+				# Sometimes it fails to delete because of policies, this will make the code try again
+				if self.driver.is_visible(locators['delete_confirm_btn']):
+					self.find_element_by_locator(locators['delete_confirm_btn']).click()
+
+				self.wait_for_available(locators['create_group'])
+
+			else:
+				print("All groups deleted")
+
+	        except TimeoutException:
+			print("table has no groups")
 
 
 	def selectGroup(self,groupname):
@@ -86,18 +135,12 @@ class Groups(BasePage):
 
 
 	def getGroupList(self):
-		table = []
-		header = ['Name' , 'Path','ARN','Created on']
-		for rows in self.find_elements_by_locator(locators['GROUPS_LIST_TABLE_ROWS']):
-			d = {}
-			index = 0
-			for colms in rows.find_elements_by_locator(locators['GROUPS_LIST_TABLE_COLMS']):
-				print(colms.text)
-				d[header[index]] = colms.text
-				index+=1
-			table.append(d)
-		print(table)
-		return table
+			table = []
+			for rows in self.find_elements_by_locator(locators['GROUPS_LIST_TABLE_ROWS']):
+				colms = rows.find_elements_by_locator(locators['GROUPS_LIST_TABLE_COLMS'])
+				col_text = colms[0].text
+				table.append(col_text)
+			return table
 
 
 	def findGroup(self,groupname):
@@ -114,104 +157,131 @@ class Groups(BasePage):
 
 	#Group Users Page
 	def addUsertoGroup(self,groupname,username):
-		time.sleep(1)
-		self.find_element_by_locator(locators['group_btn']+ group).click()
-		self.find_element_by_locator(locators['group_users']).click()
-		time.sleep(1)
+		self.wait_for_available(locators['GROUPS_LIST_TABLE_ROWS'])
+		if self.driver.is_element_available(locators['group_btn']+groupname):
+			self.find_element_by_locator(locators['group_btn']+ groupname).click()
+			self.find_element_by_locator(locators['group_users']).click()
+			self.wait_for_available(locators['add_user_to_group'])
 
-		#Enter User
-		self.userName = username 
+			#Enter User
+			self.userName = username 
 
-		#Return to user page
+		else:
+			print(groupname + " does not exist")
+	
+		#Return to groups page
 		Groups(self.driver).open()
 
-	def deleteGroupUser(self,group,user):
-		time.sleep(1)
-		self.find_element_by_locator(locators['group_btn']+ group).click()
-		self.find_element_by_locator(locators['group_users']).click()
-		time.sleep(1)
 
-		#Search for User
-		index = 0
-		for bubbles in self.find_elements_by_locator(locators['USER_BUBBLES']) :
-			if bubbles.text == user :
-				self.find_elements_by_locator(locators['USER_SVG'])[index].click()
-				print("Deleted")
-				time.sleep(1)
-				Groups(self.driver).open()
-				return
-			index+=1
-		print("User does not exist")
+	def deleteGroupUser(self,groupname,user):
+		self.wait_for_available(locators['GROUPS_LIST_TABLE_ROWS'])
+		if self.driver.is_element_available(locators['group_btn']+groupname):
+			self.find_element_by_locator(locators['group_btn']+ groupname).click()
+			self.find_element_by_locator(locators['group_users']).click()
+			self.wait_for_available(locators['add_user_to_group'])
 
-		#Return to user page
+			#Search for User
+			index = 0
+			for bubbles in self.find_elements_by_locator(locators['USER_BUBBLES']):
+				#print(bubbles.text)
+				if bubbles.text == user :
+					self.find_elements_by_locator(locators['USER_SVG'])[index].click()
+					print("Deleted")
+					Groups(self.driver).open()
+					return
+				index+=1
+			print("User does not exist")
+
+		else:
+			print(groupname + " does not exist")
+	
+		#Return to groups page
 		Groups(self.driver).open()
 
 	
 	def getGroupUsers(self,groupname):
-		time.sleep(1)
-		self.find_element_by_locator(locators['group_btn']+ groupname).click()
-		self.find_element_by_locator(locators['group_users']).click()
-		time.sleep(1)
+		self.wait_for_available(locators['GROUPS_LIST_TABLE_ROWS'])
+		if self.driver.is_element_available(locators['group_btn']+groupname):
+			self.find_element_by_locator(locators['group_btn']+ groupname).click()
+			self.find_element_by_locator(locators['group_users']).click()
+			self.wait_for_available(locators['add_user_to_group'])
 
-		#Return table of group users
-		table = []
-		for colms in self.find_elements_by_locator(locators['USER_BUBBLES']):
-			table.append(colms.text)
+			#Return table of group users
+			table = []
+			for colms in self.find_elements_by_locator(locators['USER_BUBBLES']):
+				table.append(colms.text)
 		
-		#Return to user page
+		
+		else:
+			print(groupname + " does not exist")
+	
+		#Return to groups page
 		Groups(self.driver).open()
-		return(table)	
+		return table
 	
 
 	#Group Permissions Page
+	def addPermissionToGroup(self,groupname,permission):
+		self.wait_for_available(locators['GROUPS_LIST_TABLE_ROWS']) 
+		if self.driver.is_element_available(locators['group_btn']+groupname):
+			self.find_element_by_locator(locators['group_btn']+ groupname).click()
+			self.find_element_by_locator(locators['group_permissions']).click()
+			self.wait_for_available(locators['add_policy_to_group'])
+		
+			#Add permission 
+			self.permissionName = permission
+			print("permission added")
+
+		else:
+			print(groupname + " does not exist")
 	
-	def addPermissionToGroup(self,group,permission):
-		time.sleep(1) 
-		self.find_element_by_locator(locators['group_btn']+ group).click()
-		self.find_element_by_locator(locators['group_permissions']).click()
-		time.sleep(1) 
-
-		#Add permission 
-		self.permissionName = permission
-		print("permission added")
-
-		#Return to user page
+		#Return to groups page
 		Groups(self.driver).open()
 	
+
 	def deleteGroupPermission(self,groupname,permission):
-		time.sleep(1)
-		self.find_element_by_locator(locators['group_btn']+ groupname).click()
-		self.find_element_by_locator(locators['group_permissions']).click()
-		time.sleep(1)
+		self.wait_for_available(locators['GROUPS_LIST_TABLE_ROWS']) 
+		if self.driver.is_element_available(locators['group_btn']+groupname):
+			self.find_element_by_locator(locators['group_btn']+ groupname).click()
+			self.find_element_by_locator(locators['group_permissions']).click()
+			self.wait_for_available(locators['add_policy_to_group'])
 
-		#Search for permission
-		index = 0
-		for bubbles in self.find_elements_by_locator(locators['PERMISSION_BUBBLES']) :
-			if bubbles.text == permission :
-				self.find_elements_by_locator(locators['PERMISSION_SVG'])[index].click()
-				print("Deleted")
-				time.sleep(1)
-				Groups(self.driver).open()
-				return
-			index+=1
-		print("Permission does not exist")
+			#Search for permission
+			index = 0
+			for bubbles in self.find_elements_by_locator(locators['PERMISSION_BUBBLES']) :
+				if bubbles.text == permission :
+					self.find_elements_by_locator(locators['PERMISSION_SVG'])[index].click()
+					print("Deleted")
+					Groups(self.driver).open()
+					return
+				index+=1
+			print("Permission does not exist")
 
-		#Return to user page
+		else:
+			print(groupname + " does not exist")
+	
+		#Return to groups page
 		Groups(self.driver).open()
 	
 
 	def getGroupPermissions(self,groupname):
-		time.sleep(1)
-		self.find_element_by_locator(locators['group_btn']+ groupname).click()
-		self.find_element_by_locator(locators['group_permissions']).click()
-		time.sleep(1)
+		self.wait_for_available(locators['GROUPS_LIST_TABLE_ROWS']) 
+		if self.driver.is_element_available(locators['group_btn']+groupname):
+			self.find_element_by_locator(locators['group_btn']+ groupname).click()
+			self.find_element_by_locator(locators['group_permissions']).click()
+			self.wait_for_available(locators['add_policy_to_group'])
 
-		#Return table of group permissions
-		table = []
-		for bubbles in self.find_elements_by_locator(locators['PERMISSION_BUBBLES']) :
-			table.append(bubbles.text)
-		print(table)
-		return(table)
+			#Return table of group permissions
+			table = []
+			for bubbles in self.find_elements_by_locator(locators['PERMISSION_BUBBLES']) :
+				table.append(bubbles.text)
+			return table
+
+		else:
+			print(groupname + " does not exist")
+	
+		#Return to groups page
+		Groups(self.driver).open()
 
 
 
