@@ -89,7 +89,6 @@ class GroupTest(unittest.TestCase):
 
 		self.assertTrue("WasabiFullAccess" in table,'WasabiFullAcess is not in group-1, TEST FAIL')		
 
-
 	
 	
 	def test_delete_group_policy(self):
@@ -102,10 +101,9 @@ class GroupTest(unittest.TestCase):
 
 		table = self.groups_page.getGroupPermissions('group-1')
 
-		self.assertTrue("WasabiFullAccess" not in table,'WasabiFullAcess is not in group-1, TEST FAIL')
-
-			
+		self.assertTrue("WasabiFullAccess" not in table,'WasabiFullAcess is not in group-1, TEST FAIL')			
 		
+
 
 	def tearDown(self):
 		self.groups_page.deleteAllGroups()

@@ -37,8 +37,10 @@ class UsersTest(unittest.TestCase):
 		self.assertTrue("file_manager" in self.driver.current_url,'Console user did not sign in, TEST FAIL')
 
 		#Personoalized clean up, log back in to root main acount 
+		self.users_page.open()
 		self.users_page.logOut()
-		self.login_page.login(common.USERNAME,common.PASSWORD) 
+		self.login_page.login(common.USERNAME,common.PASSWORD)
+		self.users_page.open()
 
 	
 	def test_createUser_with_api(self):
@@ -93,6 +95,7 @@ class UsersTest(unittest.TestCase):
 		self.users_page.open()
 		print('Add bolak2 to group group-1')
 
+		self.groups_page.open()
   		self.groups_page.createGroup('group-1')	
 
 		self.users_page.open()
@@ -166,8 +169,7 @@ class UsersTest(unittest.TestCase):
 		
 	def tearDown(self):
 		self.users_page.deleteAllUsers()
-
-		#self.groups_page.deleteAllGroups()
+		self.groups_page.deleteAllGroups()
 
 		self.driver.close()
 

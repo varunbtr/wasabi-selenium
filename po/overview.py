@@ -60,16 +60,12 @@ class Overview(BasePage):
 	def createBucket(self,bucketName):
 		self.find_element_by_locator(locators['create_bucket']).click()
 		self.BucketName = bucketName
-		time.sleep(1)
 
 		self.find_element_by_locator(locators['nextbutton']).click()
-		time.sleep(1)
 
 		self.find_element_by_locator(locators['nextbutton']).click()
-		time.sleep(1)
 
 		self.find_element_by_locator(locators['nextbutton']).click()
-		time.sleep(1)
 		print('done')
 				
 

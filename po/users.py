@@ -17,7 +17,7 @@ import time
 import base 
 from controls.autocomplete import AutoComplete
 
-locators = {
+LOCATORS = {
 	'iam_btn': "css=button[data-e2e='tn-overview']",
 	'create_bucket': "css=button[data-e2e='bucket-cta']",
 	'USERS_LIST_TABLE_ROWS': 'css=.ReactVirtualized__Grid__innerScrollContainer .ReactVirtualized__Table__row',
@@ -82,14 +82,14 @@ locators = {
 
 class Users(BasePage):
 	url = common.URL + '#/users'
-	consolePassword = Text(locators['console_password'])
-	userName = Text(locators['user_name'])
-	UserNameText = AutoComplete(locators['add_newUser_to_group'])
-	addPolicyToGroup = AutoComplete(locators['add_policy_to_group'])
-	userToGroup = AutoComplete(locators['add_user_to_group'])
+	consolePassword = Text(LOCATORS['console_password'])
+	userName = Text(LOCATORS['user_name'])
+	UserNameText = AutoComplete(LOCATORS['add_newUser_to_group'])
+	addPolicyToGroup = AutoComplete(LOCATORS['add_policy_to_group'])
+	userToGroup = AutoComplete(LOCATORS['add_user_to_group'])
 
 	def wait_until_loaded(self):
-		self.wait_for_available(locators['create_user'])
+		self.wait_for_available(LOCATORS['create_user'])
 		return self
 
 
@@ -100,140 +100,136 @@ class Users(BasePage):
 	def createUser(self,user,user_type ='API',newGroup='none',userPolicy='none'):
 		self.open()
 
-		if self.driver.is_visible(locators['user']+user):
-			print("user exists")
-			return
+		if self.driver.is_visible(LOCATORS['user']+user):
+			print("user exists, deleting existing user")
+			self.deleteUser(user)
  
-		self.find_element_by_locator(locators['create_user']).click()
-
-		if self.driver.is_visible(locators['create_another_user_btn']):
-			self.find_element_by_locator(locators['create_another_user_btn']).click()
-
+		self.find_element_by_locator(LOCATORS['create_user']).click()
+		
+		if self.driver.is_visible(LOCATORS['create_another_user_btn']):
+			self.find_element_by_locator(LOCATORS['create_another_user_btn']).click()
+		
 		#Details
 		self.userName = user
 		if (user_type == 'API'):
-			self.find_element_by_locator(locators['programmatic']).click()
+			self.find_element_by_locator(LOCATORS['programmatic']).click()
 			#print('API')
 		else:
-			self.find_element_by_locator(locators['console']).click()
+			self.find_element_by_locator(LOCATORS['console']).click()
 			self.consolePassword = "password"
-			self.find_element_by_locator(locators['password_reset_box']).click()
+			self.find_element_by_locator(LOCATORS['password_reset_box']).click()
 			#print("console")
-		self.find_elements_by_locator(locators['next'])[-1].click()
+		self.find_elements_by_locator(LOCATORS['next'])[-1].click()
 
 		#Group
-		self.wait_for_hidden(locators['programmatic'])
-		self.wait_for_visible(locators['create_a_new_group_btn'])
+		self.wait_for_hidden(LOCATORS['programmatic'])
+		self.wait_for_visible(LOCATORS['create_a_new_group_btn'])
 		if newGroup == 'none':
 			print("no group")
 		else: 
-			self.wait_for_visible(locators['add_newUser_to_group'])
+			self.wait_for_visible(LOCATORS['add_newUser_to_group'])
 			self.UserNameText = newGroup
 			#if group doesnt exist create new group, a warning catcher would help
-		self.find_elements_by_locator(locators['next'])[-1].click()
+		self.find_elements_by_locator(LOCATORS['next'])[-1].click()
 
 		#Policy
 		self.sleep(1)
 		if userPolicy == 'none':
 			print("no policy")
 		else:
-			self.wait_for_visible(locators['add_newUser_to_group'])
+			self.wait_for_visible(LOCATORS['add_newUser_to_group'])
 			self.UserNameText = userPolicy
 
-		self.find_elements_by_locator(locators['next'])[-1].click()
+		self.find_elements_by_locator(LOCATORS['next'])[-1].click()
 			
 		#Review
-		self.find_elements_by_locator(locators['next'])[-1].click()
+		self.find_elements_by_locator(LOCATORS['next'])[-1].click()
 
 		if user_type == 'console':
 			#Return to user page
-			self.wait_for_visible(locators['check_success'])
-			self.wait_for_visible(locators['close_review'])
-			self.find_element_by_locator(locators['close_review']).click()
-			self.wait_for_visible(locators['user']+user)
+			self.wait_for_visible(LOCATORS['check_success'])
+			self.wait_for_visible(LOCATORS['close_review'])
+			self.find_element_by_locator(LOCATORS['close_review']).click()
+			self.wait_for_visible(LOCATORS['user']+user)
 			print('user '+ user +' created')
 			return 
 
 		#Get access keys for API
-		self.wait_for_visible(locators['show_secret_key'])
-		self.find_element_by_locator(locators['show_secret_key']).click()
-		accessKey = self.find_elements_by_locator(locators['access_key'])[0].text
-		secretKey = self.find_elements_by_locator(locators['access_key'])[1].text
+		self.wait_for_visible(LOCATORS['show_secret_key'])
+		self.find_element_by_locator(LOCATORS['show_secret_key']).click()
+		accessKey = self.find_elements_by_locator(LOCATORS['access_key'])[0].text
+		secretKey = self.find_elements_by_locator(LOCATORS['access_key'])[1].text
+
+		accessKey = accessKey.split('\n')[0]
+		secretKey = secretKey.split('\n')[0]
 
 		#Return to user page
-		self.find_elements_by_locator(locators['close_btn'])[-1].click()
-		self.wait_for_visible(locators['user']+user)
+		self.find_elements_by_locator(LOCATORS['close_btn'])[-1].click()
+		self.wait_for_visible(LOCATORS['user']+user)
 		print('user '+ user +' created')
 		return  accessKey , secretKey
 		
 
 	def selectUser(self,user):
-		self.find_element_by_locator(locators['user']+user).click()
+		self.checkUsersTable()
+
+		self.find_element_by_locator(LOCATORS['user']+user).click()
 
 
 	def deleteUser(self,user):
-		self.open()
-		try: 
-			self.wait_for_available(locators['USERS_LIST_TABLE_ROWS'])
-			if self.driver.is_element_available(locators['user']+user):
-				self.find_element_by_locator(locators['user']+user).click()
-				self.wait_for_visible(locators['delete_user_button'])
-				self.find_element_by_locator(locators['delete_user_button']).click()
+		self.checkUsersTable()
 
-				#when in pop up screen
-				self.wait_for_visible(locators['confirm_delete'])
-				while self.driver.is_visible(locators['confirm_delete']):			#janky fix
-					self.find_element_by_locator(locators['confirm_delete']).click()
-				self.wait_for_hidden(locators['confirm_delete'])
+		if self.driver.is_element_available(LOCATORS['user']+user):
+			self.find_element_by_locator(LOCATORS['user']+user).click()
+			self.wait_for_visible(LOCATORS['delete_user_button'])
+			self.find_element_by_locator(LOCATORS['delete_user_button']).click()
 
-				# Sometimes it fails to delete because of policies, this will make thh ecode try again
-				if self.driver.is_visible(locators['create_user']):
-					#self.wait_for_visible(locators['create_user'])
-					print(user + ' deleted')
-				else:
-					print("DELETE BUTTON ERROR")
-					self.deleteUser(user)
+			#when in pop up screen
+			self.wait_for_visible(LOCATORS['confirm_delete'])
+			while self.driver.is_visible(LOCATORS['confirm_delete']):			#janky fix
+				self.find_element_by_locator(LOCATORS['confirm_delete']).click()
+			self.wait_for_hidden(LOCATORS['confirm_delete'])
 
+			# Sometimes it fails to delete because of policies, this will make thh ecode try again
+			if self.driver.is_visible(LOCATORS['create_user']):
+				#self.wait_for_visible(LOCATORS['create_user'])
+				print(user + ' deleted')
 			else:
-				print(user + " does not exist")
-	        except TimeoutException:
-			print("table empty") 
+				print("DELETE BUTTON ERROR")
+				self.deleteUser(user)
+		else:
+			print(user + " does not exist")
 
 	def deleteAllUsers(self):
-		self.open()
-		try: 
-			self.wait_for_available(locators['USERS_LIST_TABLE_ROWS'])
+		#self.checkUsersTable()
 
-			while self.driver.is_visible(locators['USERS_LIST_TABLE_ROWS']):
-				self.find_elements_by_locator(locators['USERS_LIST_TABLE_ROWS'])[0].click()
-				self.wait_for_visible(locators['delete_user_button'])
-				self.find_element_by_locator(locators['delete_user_button']).click()
+		while self.driver.is_visible(LOCATORS['USERS_LIST_TABLE_ROWS']):
+			self.find_elements_by_locator(LOCATORS['USERS_LIST_TABLE_ROWS'])[0].click()
+			self.wait_for_visible(LOCATORS['delete_user_button'])
+			self.find_element_by_locator(LOCATORS['delete_user_button']).click()
 
-				#when in pop up screen
-				self.wait_for_visible(locators['confirm_delete'])
-				while self.driver.is_visible(locators['confirm_delete']):			#janky fix
-					self.find_element_by_locator(locators['confirm_delete']).click()
-				self.wait_for_hidden(locators['confirm_delete'])
+			#when in pop up screen
+			self.wait_for_visible(LOCATORS['confirm_delete'])
+			while self.driver.is_visible(LOCATORS['confirm_delete']):			#janky fix
+				self.find_element_by_locator(LOCATORS['confirm_delete']).click()
+			self.wait_for_hidden(LOCATORS['confirm_delete'])
 
-				# Sometimes it fails to delete because of policies, this will make thh ecode try again
-				if self.driver.is_visible(locators['create_user']):
-					continue
-				else:
-					Users(self.driver).open()
-					print("DELETE BUTTON ERROR")
-					self.deleteAllUsers()
-
+			# Sometimes it fails to delete because of policies, this will make the code try again
+			if self.driver.is_visible(LOCATORS['create_user']):
+				continue
 			else:
-				print("All users deleted")
+				Users(self.driver).open()
+				print("DELETE BUTTON ERROR")
+				self.deleteAllUsers()
 
-	        except TimeoutException:
-			print("table has no users")
+		else:
+			print("All users deleted")
 	
 
 	def findUser(self,user):
 		header = ['Name' , 'Path','ARN','Created on']
-		for rows in self.find_elements_by_locator(locators['USERS_LIST_TABLE_ROWS']):
-			colms = rows.find_elements_by_locator(locators['USERS_LIST_TABLE_COLMS'])
+		for rows in self.find_elements_by_locator(LOCATORS['USERS_LIST_TABLE_ROWS']):
+			colms = rows.find_elements_by_locator(LOCATORS['USERS_LIST_TABLE_COLMS'])
 			col_text = colms[0].text
 			print col_text
 			if col_text == user:
@@ -244,28 +240,32 @@ class Users(BasePage):
 					'value {!r}'.format(attr_val))	
 
 	def getUsers(self):
-			table = []
-			for rows in self.find_elements_by_locator(locators['USERS_LIST_TABLE_ROWS']):
-				colms = rows.find_elements_by_locator(locators['USERS_LIST_TABLE_COLMS'])
-				col_text = colms[0].text
-				table.append(col_text)
-			return table
+		self.checkUsersTable()
+	
+		table = []
+		for rows in self.find_elements_by_locator(LOCATORS['USERS_LIST_TABLE_ROWS']):
+			colms = rows.find_elements_by_locator(LOCATORS['USERS_LIST_TABLE_COLMS'])
+			col_text = colms[0].text
+			table.append(col_text)
+		return table
 				
 	
 	'''SETTINGS FUNCTIONS'''
-	def editUserName(self,user,newName ):
-		self.find_element_by_locator(locators['user']+user).click()
-		self.find_element_by_locator(locators['user_settings']).click()
+	def editUserName(self,user,newName):
+		self.checkUsersTable()
+
+		self.find_element_by_locator(LOCATORS['user']+user).click()
+		self.find_element_by_locator(LOCATORS['user_settings']).click()
 
 		#Enter text
 		self.userName = "clear()"
 		self.userName = newName
 		#refresh the page
-		self.find_element_by_locator(locators['user_settings']).click()
+		self.find_element_by_locator(LOCATORS['user_settings']).click()
 
 
 		#press next 
-		self.find_element_by_locator(locators['update']).click()
+		self.find_element_by_locator(LOCATORS['update']).click()
 
 		#Return to user page
 		Users(self.driver).open()
@@ -273,13 +273,14 @@ class Users(BasePage):
 
 	'''GROUP PAGE FUNCTIONS'''
 	def addUserToGroup(self,user,newGroup):
-		self.wait_for_available(locators['USERS_LIST_TABLE_ROWS'])
-		if self.driver.is_element_available(locators['user']+user):
-			self.find_element_by_locator(locators['user']+user).click()
-			self.find_element_by_locator(locators['user_groups_page']).click()
+		self.checkUsersTable()
+
+		if self.driver.is_element_available(LOCATORS['user']+user):
+			self.find_element_by_locator(LOCATORS['user']+user).click()
+			self.find_element_by_locator(LOCATORS['user_groups_page']).click()
 
 			#Enter text
-			self.wait_for_available(locators['add_user_to_group'])
+			self.wait_for_available(LOCATORS['add_user_to_group'])
 			self.userToGroup = newGroup
 			print("User added")
 		else:
@@ -292,24 +293,22 @@ class Users(BasePage):
 		
 	
 	def deleteUserGroup(self,user,group):
-		self.wait_for_available(locators['USERS_LIST_TABLE_ROWS'])
-		if self.driver.is_element_available(locators['user']+user):
-			self.find_element_by_locator(locators['user']+user).click()
-			self.find_element_by_locator(locators['user_groups_page']).click()
-			self.wait_for_available(locators['add_user_to_group'])
+		self.checkUsersTable()
+
+		if self.driver.is_element_available(LOCATORS['user']+user):
+			self.find_element_by_locator(LOCATORS['user']+user).click()
+			self.find_element_by_locator(LOCATORS['user_groups_page']).click()
+			self.wait_for_available(LOCATORS['add_user_to_group'])
 
 			#Search for Group
 			index = 0
-			for bubbles in self.find_elements_by_locator(locators['GROUPS_BUBBLES']):
+			for bubbles in self.find_elements_by_locator(LOCATORS['GROUPS_BUBBLES']):
 				if bubbles.text == group :
-					self.find_elements_by_locator(locators['GROUPS_SVG'])[index].click()
+					self.find_elements_by_locator(LOCATORS['GROUPS_SVG'])[index].click()
 					print("Deleted")
 					Users(self.driver).open()
 				index+=1
 			print("User does not exist")
-
-		else:
-			print(user + " does not exist")
 	
 		#Return to user page
 		Users(self.driver).open()
@@ -317,15 +316,16 @@ class Users(BasePage):
 
 	
 	def getUserGroups(self,user):
-		self.wait_for_available(locators['USERS_LIST_TABLE_ROWS'])
-		if self.driver.is_element_available(locators['user']+user):
-			self.find_element_by_locator(locators['user']+user).click()
-			self.find_element_by_locator(locators['user_groups_page']).click()
-			self.wait_for_available(locators['add_user_to_group'])
+		self.checkUsersTable()
+
+		if self.driver.is_element_available(LOCATORS['user']+user):
+			self.find_element_by_locator(LOCATORS['user']+user).click()
+			self.find_element_by_locator(LOCATORS['user_groups_page']).click()
+			self.wait_for_available(LOCATORS['add_user_to_group'])
 
 			#Return table of group users
 			table = []
-			for bubbles in self.find_elements_by_locator(locators['GROUPS_BUBBLES']):
+			for bubbles in self.find_elements_by_locator(LOCATORS['GROUPS_BUBBLES']):
 				table.append(bubbles.text)
 		
 		else:
@@ -340,11 +340,12 @@ class Users(BasePage):
 	'''PERMISSION FUNCTIONS'''
 	
 	def addUserPermission(self,user,permission):
-		self.wait_for_available(locators['USERS_LIST_TABLE_ROWS'])
-		if self.driver.is_element_available(locators['user']+user):
-			self.find_element_by_locator(locators['user']+user).click()
-			self.find_element_by_locator(locators['user_permission_page']).click()
-			self.wait_for_available(locators['add_policy_to_group'])
+		self.checkUsersTable()
+
+		if self.driver.is_element_available(LOCATORS['user']+user):
+			self.find_element_by_locator(LOCATORS['user']+user).click()
+			self.find_element_by_locator(LOCATORS['user_permission_page']).click()
+			self.wait_for_available(LOCATORS['add_policy_to_group'])
 
 			#Enter permission
 			self.addPolicyToGroup = permission
@@ -356,17 +357,18 @@ class Users(BasePage):
 		Users(self.driver).open()
 	
 	def deleteUserPermission(self,user,permission):
-		self.wait_for_available(locators['USERS_LIST_TABLE_ROWS'])
-		if self.driver.is_element_available(locators['user']+user):
-			self.find_element_by_locator(locators['user']+user).click()
-			self.find_element_by_locator(locators['user_permission_page']).click()
-			self.wait_for_available(locators['add_policy_to_group'])
+		self.checkUsersTable()
+
+		if self.driver.is_element_available(LOCATORS['user']+user):
+			self.find_element_by_locator(LOCATORS['user']+user).click()
+			self.find_element_by_locator(LOCATORS['user_permission_page']).click()
+			self.wait_for_available(LOCATORS['add_policy_to_group'])
 
 			#Search for permission
 			index = 0
-			for bubbles in self.find_elements_by_locator(locators['PERMISSION_BUBBLES']) :
+			for bubbles in self.find_elements_by_locator(LOCATORS['PERMISSION_BUBBLES']) :
 				if bubbles.text == permission :
-					self.find_elements_by_locator(locators['PERMISSION_SVG'])[index].click()
+					self.find_elements_by_locator(LOCATORS['PERMISSION_SVG'])[index].click()
 					Users(self.driver).open()
 					return
 				index+=1
@@ -379,16 +381,16 @@ class Users(BasePage):
 
 
 	def getGroupPermissions(self,user):
-		self.wait_for_available(locators['USERS_LIST_TABLE_ROWS'])
-		if self.driver.is_element_available(locators['user']+user):
-			self.find_element_by_locator(locators['user']+user).click()
-			self.find_element_by_locator(locators['user_permission_page']).click()
-			self.wait_for_available(locators['add_policy_to_group'])
+		self.checkUsersTable()
+
+		if self.driver.is_element_available(LOCATORS['user']+user):
+			self.find_element_by_locator(LOCATORS['user']+user).click()
+			self.find_element_by_locator(LOCATORS['user_permission_page']).click()
+			self.wait_for_available(LOCATORS['add_policy_to_group'])
 		
 			#Return table of group permissions
 			table = []
-			#self.wait_for_available(locators['PERMISSION_BUBBLES']
-			for bubbles in self.find_elements_by_locator(locators['PERMISSION_BUBBLES']) :
+			for bubbles in self.find_elements_by_locator(LOCATORS['PERMISSION_BUBBLES']) :
 				table.append(bubbles.text)
 		else:
 			print(user + " does not exist")
@@ -398,9 +400,18 @@ class Users(BasePage):
 
 	#log out
 	def logOut(self):
-		self.find_element_by_locator(locators['options_button']).click()
-		self.wait_for_available(locators['logout'])
-		self.find_element_by_locator(locators['logout']).click()
+		self.wait_for_available(LOCATORS['options_button'])
+		self.find_element_by_locator(LOCATORS['options_button']).click()
+		self.wait_for_available(LOCATORS['logout'])
+		self.find_element_by_locator(LOCATORS['logout']).click()
+
+	#Check if groups on table
+	def checkUsersTable(self):
+		self.open()
+		try: 
+			self.wait_for_available(LOCATORS['USERS_LIST_TABLE_ROWS'])
+		except TimeoutException:
+			print("table has no groups")
 
 
 
