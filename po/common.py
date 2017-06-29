@@ -8,9 +8,9 @@ from selenium.common.exceptions import (
 import base
 import time
 
-URL = 'https://localhost/console#/'
-USERNAME = 'test'
-PASSWORD = 'test'
+URL = 'https://console.bluearchivetest.com/#/'
+USERNAME = 'testing+ali@wasabi.com'
+PASSWORD = 'password'
 
 def check_error(self):
     try:
